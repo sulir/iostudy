@@ -14,7 +14,7 @@ public class NativeMethodSet {
     public static NativeMethodSet load() throws SQLException {
         NativeMethodSet methodSet = new NativeMethodSet();
 
-        Connection connection = Database.getConnection();
+        Connection connection = Database.getInstance().getConnection();
         PreparedStatement selectAll = connection.prepareStatement("SELECT * FROM natives");
         ResultSet results = selectAll.executeQuery();
         while (results.next()) {
