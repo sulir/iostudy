@@ -1,8 +1,6 @@
 package com.sulir.github.iostudy.code;
 
-import com.sulir.github.iostudy.NativeMethodSet;
-
-import java.sql.SQLException;
+import com.sulir.github.iostudy.objects.NativeMethodList;
 
 public class StaticAnalysis {
     private final String path;
@@ -12,11 +10,7 @@ public class StaticAnalysis {
     }
 
     public void run() {
-        try {
-            NativeMethodSet nativeMethods = NativeMethodSet.load();
-            System.out.println(nativeMethods);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        NativeMethodList nativeMethods = NativeMethodList.load();
+        System.out.println(nativeMethods);
     }
 }

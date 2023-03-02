@@ -2,7 +2,7 @@ package com.sulir.github.iostudy;
 
 import com.sulir.github.iostudy.code.StaticAnalysis;
 import com.sulir.github.iostudy.dynamic.DynamicAnalysis;
-import com.sulir.github.iostudy.export.NativeMethodExport;
+import com.sulir.github.iostudy.export.NativeMethodsExport;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,11 +14,11 @@ public class Main {
             switch (args[0]) {
                 case "static" -> new StaticAnalysis(args[1]).run();
                 case "dynamic" -> new DynamicAnalysis(args[1]).run();
-                case "export" -> new NativeMethodExport(args[1]).run();
+                case "export" -> new NativeMethodsExport(args[1]).run();
                 default -> System.out.println("Unknown command: " + args[0]);
             }
         }
 
-        Database.getInstance().close();
+        Database.disconnect();
     }
 }
