@@ -12,12 +12,12 @@ import java.util.Scanner;
 
 public class Database {
     private static final String IMPORT = "INSERT INTO natives VALUES (?, ?, ?, ?)";
-    private static String fileName = "results.db3";
+    private static String path = "results.db3";
     private static Database instance;
     private Connection connection;
 
-    public static void setPath(String path) {
-        fileName = Paths.get(path, fileName).toString();
+    public static void setDirectory(String directory) {
+        path = Paths.get(directory, path).toString();
     }
 
     public static Database getInstance() {
@@ -29,8 +29,8 @@ public class Database {
     public Connection getConnection() {
         if (connection == null) {
             try {
-                boolean existed = new File(fileName).exists() && new File(fileName).length() > 0;
-                connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
+                boolean existed = new File(path).exists() && new File(path).length() > 0;
+                connection = DriverManager.getConnection("jdbc:sqlite:" + path);
                 connection.setAutoCommit(false);
 
                 if (!existed) {
