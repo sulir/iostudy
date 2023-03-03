@@ -1,16 +1,21 @@
 package com.sulir.github.iostudy.code;
 
-import com.sulir.github.iostudy.objects.NativeMethodList;
+import com.sulir.github.iostudy.shared.NativeMethodList;
+
+import java.nio.file.Path;
 
 public class StaticAnalysis {
-    private final String path;
+    private final Path path;
 
-    public StaticAnalysis(String path) {
+    public StaticAnalysis(Path path) {
         this.path = path;
     }
 
     public void run() {
         NativeMethodList nativeMethods = NativeMethodList.load();
-        System.out.println(nativeMethods);
+        Project project = new Project(path);
+        project.setup();
+        ProjectCallGraph callGraph = new ProjectCallGraph(nativeMethods);
+        callGraph.construct();
     }
 }

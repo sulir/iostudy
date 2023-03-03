@@ -1,31 +1,27 @@
 package com.sulir.github.iostudy;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Database {
-    private static String path = "results.db3";
+    private static Path path = Path.of("results.db3");
     private static Connection connection;
 
-    public static void setDirectory(String directory) {
-        path = Paths.get(directory, path).toString();
+    public static void setDirectory(Path directory) {
+        path = directory.resolve(path);
     }
 
     public static Connection getConnection() {
         if (connection == null) {
             try {
-                boolean existed = new File(path).exists() && new File(path).length() > 0;
                 connection = DriverManager.getConnection("jdbc:sqlite:" + path);
                 connection.setAutoCommit(false);
-
-                if (!existed)
-                    createSchema();
+                createSchema();
             } catch (SQLException|IOException e) {
                 e.printStackTrace();
                 System.exit(1);

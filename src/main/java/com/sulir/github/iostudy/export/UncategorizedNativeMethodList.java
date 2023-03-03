@@ -1,6 +1,6 @@
 package com.sulir.github.iostudy.export;
 
-import com.sulir.github.iostudy.objects.NativeMethod;
+import com.sulir.github.iostudy.shared.NativeMethod;
 import soot.G;
 import soot.Scene;
 import soot.SootMethod;
@@ -9,7 +9,7 @@ import soot.options.Options;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,8 +28,8 @@ public class UncategorizedNativeMethodList {
 
     private UncategorizedNativeMethodList() { }
 
-    public void saveToTSV(String file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file)) {
+    public void saveToTSV(Path file) throws IOException {
+        try (PrintWriter writer = new PrintWriter(file.toFile())) {
             for (NativeMethod method : methods) {
                 writer.printf("%d\t%s\t%s\t%s\t%s\n", method.getId(), method.getModule(),
                         method.getClassName(), method.getSignature(), method.getCategory());
@@ -38,7 +38,7 @@ public class UncategorizedNativeMethodList {
     }
 
     private void readAllModules() throws IOException {
-        File modulesPath = Paths.get(System.getProperty("java.home"), "mods").toFile();
+        File modulesPath = Path.of(System.getProperty("java.home"), "mods").toFile();
         File[] files = modulesPath.listFiles();
         if (files == null)
             throw new IOException("No module JARs in " + modulesPath);

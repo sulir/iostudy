@@ -1,4 +1,4 @@
-package com.sulir.github.iostudy.objects;
+package com.sulir.github.iostudy.shared;
 
 import org.jetbrains.annotations.NotNull;
 import soot.SootMethod;

@@ -1,4 +1,4 @@
-package com.sulir.github.iostudy.objects;
+package com.sulir.github.iostudy.shared;
 
 import com.sulir.github.iostudy.Database;
 

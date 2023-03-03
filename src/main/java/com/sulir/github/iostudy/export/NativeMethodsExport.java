@@ -1,11 +1,12 @@
 package com.sulir.github.iostudy.export;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class NativeMethodsExport {
-    private final String file;
+    private final Path file;
 
-    public NativeMethodsExport(String file) {
+    public NativeMethodsExport(Path file) {
         this.file = file;
     }
 

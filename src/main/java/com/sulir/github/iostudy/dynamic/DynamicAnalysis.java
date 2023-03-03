@@ -1,13 +1,15 @@
 package com.sulir.github.iostudy.dynamic;
 
-public class DynamicAnalysis {
-    private final String path;
+import java.nio.file.Path;
 
-    public DynamicAnalysis(String path) {
+public class DynamicAnalysis {
+    private final Path path;
+
+    public DynamicAnalysis(Path path) {
         this.path = path;
     }
 
     public void run() {
-
+        System.out.println(path);
     }
 }
