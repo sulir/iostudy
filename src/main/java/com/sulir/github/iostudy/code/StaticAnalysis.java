@@ -15,7 +15,11 @@ public class StaticAnalysis {
         NativeMethodList nativeMethods = NativeMethodList.load();
         Project project = new Project(path);
         project.setup();
-        ProjectCallGraph callGraph = new ProjectCallGraph(nativeMethods);
+        project.saveToDB();
+
+        ProjectCallGraph callGraph = new ProjectCallGraph(project, nativeMethods);
         callGraph.construct();
+        callGraph.findNativeCallers();
+        callGraph.saveToDB();
     }
 }

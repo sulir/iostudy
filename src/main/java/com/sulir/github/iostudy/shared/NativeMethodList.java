@@ -7,15 +7,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class NativeMethodList {
     private static final String SAVE_SQL = "INSERT INTO natives VALUES (?, ?, ?, ?, ?)";
 
-    private final List<NativeMethod> methods = new ArrayList<>();
+    private final Map<String, NativeMethod> methods = new LinkedHashMap<>();
 
     public static NativeMethodList load() {
         try {
@@ -34,7 +34,7 @@ public class NativeMethodList {
     public static NativeMethodList loadFromDB() throws SQLException {
         NativeMethodList list = new NativeMethodList();
         Connection connection = Database.getConnection();
-        PreparedStatement selectAll = connection.prepareStatement("SELECT * FROM natives");
+        PreparedStatement selectAll = connection.prepareStatement("SELECT * FROM natives ORDER BY native_id");
         ResultSet results = selectAll.executeQuery();
 
         while (results.next()) {
@@ -43,7 +43,8 @@ public class NativeMethodList {
             String className = results.getString("class");
             String signature = results.getString("signature");
             String category = results.getString("category");
-            list.methods.add(new NativeMethod(id, module, className, signature, category));
+            NativeMethod method = new NativeMethod(id, module, className, signature, category);
+            list.methods.put(method.getKey(), method);
         }
 
         if (list.methods.isEmpty())
@@ -62,7 +63,7 @@ public class NativeMethodList {
             String[] fields = scanner.nextLine().split("\t");
             NativeMethod method = new NativeMethod(Integer.parseInt(fields[0]),
                     fields[1], fields[2], fields[3], fields[4]);
-            list.methods.add(method);
+            list.methods.put(method.getKey(), method);
         }
 
         return list;
@@ -74,7 +75,7 @@ public class NativeMethodList {
         Connection connection = Database.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(SAVE_SQL)) {
-            for (NativeMethod method : methods) {
+            for (NativeMethod method : methods.values()) {
                 Database.setValues(statement, method.getId(), method.getModule(), method.getClassName(),
                         method.getSignature(), method.getCategory());
                 statement.addBatch();
@@ -85,7 +86,11 @@ public class NativeMethodList {
         }
     }
 
+    public NativeMethod getNative(String key) {
+        return methods.get(key);
+    }
+
     public String toString() {
-        return methods.stream().map(NativeMethod::toString).collect(Collectors.joining("\n"));
+        return methods.values().stream().map(NativeMethod::toString).collect(Collectors.joining("\n"));
     }
 }
