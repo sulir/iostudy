@@ -9,7 +9,6 @@ public class JavaMethod {
 
     protected final String className;
     protected final String signature;
-    protected int id;
 
     protected static String getSignature(SootMethod sootMethod) {
         return sootMethod.getName() + "("
@@ -18,18 +17,9 @@ public class JavaMethod {
                 .collect(Collectors.joining(", ")) + ")";
     }
 
-    public JavaMethod(int id, String className, String signature) {
-        this.id = id;
+    public JavaMethod(String className, String signature) {
         this.className = className;
         this.signature = signature;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getClassName() {

@@ -13,7 +13,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class NativeMethodList {
-    private static final String SAVE_SQL = "INSERT INTO natives VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO natives VALUES (?, ?, ?, ?, ?)";
 
     private final Map<String, NativeMethod> methods = new LinkedHashMap<>();
 
@@ -38,7 +38,7 @@ public class NativeMethodList {
         ResultSet results = selectAll.executeQuery();
 
         while (results.next()) {
-            int id = results.getInt("native_id");
+            long id = results.getLong("native_id");
             String module = results.getString("module");
             String className = results.getString("class");
             String signature = results.getString("signature");
@@ -61,7 +61,7 @@ public class NativeMethodList {
 
         while (scanner.hasNextLine()) {
             String[] fields = scanner.nextLine().split("\t");
-            NativeMethod method = new NativeMethod(Integer.parseInt(fields[0]),
+            NativeMethod method = new NativeMethod(Long.parseLong(fields[0]),
                     fields[1], fields[2], fields[3], fields[4]);
             list.methods.put(method.getKey(), method);
         }
@@ -74,7 +74,7 @@ public class NativeMethodList {
     public void saveToDB() throws SQLException {
         Connection connection = Database.getConnection();
 
-        try (PreparedStatement statement = connection.prepareStatement(SAVE_SQL)) {
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
             for (NativeMethod method : methods.values()) {
                 Database.setValues(statement, method.getId(), method.getModule(), method.getClassName(),
                         method.getSignature(), method.getCategory());

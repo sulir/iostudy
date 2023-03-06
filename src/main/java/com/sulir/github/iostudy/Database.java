@@ -19,7 +19,7 @@ public class Database {
     public static Connection getConnection() {
         if (connection == null) {
             try {
-                connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+                connection = DriverManager.getConnection("jdbc:sqlite:" + path + "?foreign_keys=on");
                 connection.setAutoCommit(false);
                 createSchema();
             } catch (SQLException|IOException e) {

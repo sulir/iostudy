@@ -8,20 +8,41 @@ import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Arguments: static <dir> | dynamic <dir> | export <file>");
-        } else {
-            Path path = Path.of(args[1]);
-            Database.setDirectory(path);
-
-            switch (args[0]) {
-                case "static" -> new StaticAnalysis(path).run();
-                case "dynamic" -> new DynamicAnalysis(path).run();
-                case "export" -> new NativeMethodsExport(path).run();
-                default -> System.out.println("Unknown command: " + args[0]);
-            }
-        }
+        if (args.length > 0)
+            runProgram(args);
+        else
+            printHelp();
 
         Database.disconnect();
+    }
+
+    private static void runProgram(String[] args) {
+        switch (args[0]) {
+            case "static" -> {
+                if (args.length == 3) {
+                    Database.setDirectory(Path.of(args[1]));
+                    new StaticAnalysis(Path.of(args[1]), args[2]).run();
+                } else {
+                    printHelp();
+                }
+            }
+            case "dynamic" -> {
+                if (args.length == 2)
+                    new DynamicAnalysis(Path.of(args[1])).run();
+                else
+                    printHelp();
+            }
+            case "export" -> {
+                if (args.length == 2)
+                    new NativeMethodsExport(Path.of(args[1])).run();
+                else
+                    printHelp();
+            }
+            default -> printHelp();
+        }
+    }
+
+    private static void printHelp() {
+        System.out.println("Arguments: static <dir> <project> | dynamic <dir> | export <file>");
     }
 }

@@ -33,8 +33,6 @@ public class ProjectCallGraph {
         findEntryPoints();
         SparkTransformer.v().transform();
         graph = Scene.v().getCallGraph();
-
-        deleteStaticInitializers();
         findReachableSourceMethods();
     }
 
@@ -60,23 +58,14 @@ public class ProjectCallGraph {
         }
     }
 
-    public void saveToDB() {
-        for (Caller caller : reachableSourceMethods) {
-            caller.saveToDB();
-        }
+    public List<Caller> getCallers() {
+        return reachableSourceMethods;
     }
 
     private void findEntryPoints() {
         Scene.v().setEntryPoints(project.getSourceMethods()
                 .filter(entryPointPredicate)
                 .toList());
-    }
-
-    private void deleteStaticInitializers() {
-        project.getAllClasses().forEach(clazz -> clazz.getMethods().stream()
-                .filter(SootMethod::isStaticInitializer)
-                .findFirst()
-                .ifPresent(clazz::removeMethod));
     }
 
     private void findReachableSourceMethods() {

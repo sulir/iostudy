@@ -12,9 +12,11 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
 
     private final String module;
     private final String category;
+    protected long id;
 
-    public NativeMethod(int id, String module, String className, String signature, String category) {
-        super(id, className, signature);
+    public NativeMethod(long id, String module, String className, String signature, String category) {
+        super(className, signature);
+        this.id = id;
         this.module = module;
         this.category = category;
     }
@@ -45,5 +47,13 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
                 .thenComparing(NativeMethod::getClassName, collator)
                 .thenComparing(NativeMethod::getSignature, collator)
                 .compare(this, other);
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
