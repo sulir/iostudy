@@ -38,10 +38,19 @@ build_project() {
   done
 
   for jarfile in ../jars/*.jar ../deps/*.jar; do
+    jar -tf "$jarfile" | grep '^META-INF/versions/[0-9]\+' \
+      && rm -rf META-INF \
+      && jar -xf "$jarfile" META-INF/versions/ \
+      && for f in META-INF/versions/{9..17}; do
+           [ -d "$f" ] && jar -uf "$jarfile" -C "$f" .
+         done
+  done
+
+  for jarfile in ../jars/*.jar ../deps/*.jar; do
     read_classes "$jarfile"
     [ ${#CLASSES[@]} -eq 0 ] && { rm "$jarfile"; continue; }
-    javap -cp "$jarfile" --multi-release 17 -p "${CLASSES[@]}" | grep " native " \
-      && { echo "JNI used!"; return 1; }
+    javap -cp "$jarfile" --multi-release 17 -p "${CLASSES[@]}" 2>&1 | grep -e ' native ' \
+      -e '^Warning: ' -e '^Error: ' && { echo "JNI used/javap failed!"; return 1; }
   done
 
   entry_point=0
