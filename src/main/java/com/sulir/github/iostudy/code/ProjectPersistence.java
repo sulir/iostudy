@@ -7,9 +7,9 @@ import java.sql.*;
 
 public class ProjectPersistence {
     private static final String REPLACE_PROJECTS = "REPLACE INTO projects " +
-            "(name, class_count, method_count) VALUES (?, ?, ?)";
+            "(name, classes, methods) VALUES (?, ?, ?)";
     private static final String INSERT_CALLER = "INSERT INTO callers " +
-            "(project_id, class, signature, bytes) VALUES (?, ?, ?, ?)";
+            "(project_id, class, signature, units, empty) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_REFERENCE = "INSERT INTO callers_natives " +
             "(caller_id, native_id) VALUES (?, ?)";
 
@@ -50,7 +50,8 @@ public class ProjectPersistence {
         Connection connection = Database.getConnection();
 
         try (PreparedStatement insert = connection.prepareStatement(INSERT_CALLER, Statement.RETURN_GENERATED_KEYS)) {
-            Database.setValues(insert, projectId, caller.getClassName(), caller.getSignature(), -1);
+            Database.setValues(insert, projectId, caller.getClassName(), caller.getSignature(),
+                    caller.getUnitCount(), caller.isEmpty());
             insert.execute();
 
             ResultSet newId = insert.getGeneratedKeys();

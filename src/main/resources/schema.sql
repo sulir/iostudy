@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS natives (
 CREATE TABLE IF NOT EXISTS projects (
     project_id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    class_count INTEGER,
-    method_count INTEGER
+    classes INTEGER NOT NULL,
+    methods INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS callers (
@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS callers (
     project_id INTEGER NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
     class TEXT NOT NULL,
     signature TEXT NOT NULL,
-    bytes INTEGER NOT NULL
+    units INTEGER NOT NULL,
+    empty BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS callers_natives (

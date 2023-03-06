@@ -3,6 +3,7 @@ package com.sulir.github.iostudy.code;
 import com.sulir.github.iostudy.shared.JavaMethod;
 import com.sulir.github.iostudy.shared.NativeMethod;
 import soot.SootMethod;
+import soot.jimple.ReturnVoidStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,5 +27,13 @@ public class Caller extends JavaMethod {
 
     public void addCalledNative(NativeMethod nativeMethod) {
         calledNatives.add(nativeMethod);
+    }
+
+    public int getUnitCount() {
+        return method.retrieveActiveBody().getUnits().size();
+    }
+
+    public boolean isEmpty() {
+        return getUnitCount() == 1 && method.retrieveActiveBody().getUnits().getFirst() instanceof ReturnVoidStmt;
     }
 }

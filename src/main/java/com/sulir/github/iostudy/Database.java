@@ -1,5 +1,7 @@
 package com.sulir.github.iostudy;
 
+import org.sqlite.SQLiteConnection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -21,6 +23,7 @@ public class Database {
             try {
                 connection = DriverManager.getConnection("jdbc:sqlite:" + path + "?foreign_keys=on");
                 connection.setAutoCommit(false);
+                ((SQLiteConnection) connection).setBusyTimeout(30_000);
                 createSchema();
             } catch (SQLException|IOException e) {
                 e.printStackTrace();

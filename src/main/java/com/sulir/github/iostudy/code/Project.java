@@ -53,9 +53,9 @@ public class Project {
     public Stream<SootMethod> getSourceMethods() {
         return getSourceClasses()
                 .flatMap(c -> c.getMethods().stream())
-                .filter(m -> !m.isPhantom()
-                        && !Modifier.isSynthetic(m.getModifiers())
-                        && !m.isStaticInitializer());
+                .filter(m -> !Modifier.isSynthetic(m.getModifiers())
+                        && !m.isStaticInitializer()
+                        && m.isConcrete());
     }
 
     public ProjectCallGraph getCallGraph() {
