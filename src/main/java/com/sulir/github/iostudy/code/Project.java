@@ -34,7 +34,8 @@ public class Project {
 
         Options.v().set_output_dir(Path.of(System.getProperty("java.io.tmpdir"), "soot").toString());
         Options.v().set_whole_program(true);
-        fixSootBug();
+        Options.v().set_allow_phantom_refs(true);
+        Options.v().set_allow_phantom_elms(true);
 
         Scene.v().loadNecessaryClasses();
     }
@@ -75,7 +76,5 @@ public class Project {
             return Arrays.stream(files).map(File::getPath).sorted().toList();
     }
 
-    private void fixSootBug() {
-        Scene.v().addClass(new SootClass("com.google.gson.internal.$Gson"));
-    }
+
 }

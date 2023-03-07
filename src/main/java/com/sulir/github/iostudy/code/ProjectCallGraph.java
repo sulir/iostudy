@@ -2,22 +2,24 @@ package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.shared.NativeMethod;
 import com.sulir.github.iostudy.shared.NativeMethodList;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import soot.Kind;
 import soot.MethodOrMethodContext;
 import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.callgraph.Filter;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ProjectCallGraph {
     private static final EntryPointPredicate entryPointPredicate = new EntryPointPredicate();
+    private static final Logger log = LoggerFactory.getLogger(ProjectCallGraph.class);
 
     private final Project project;
     private final NativeMethodList nativeMethods;
@@ -39,8 +41,8 @@ public class ProjectCallGraph {
     public void findNativeCallers() {
         for (Caller caller : reachableSourceMethods) {
             Iterator<SootMethod> entryPoint = List.of(caller.getSootMethod()).iterator();
-            Filter withoutStaticInitializers = new Filter(e -> !e.isClinit());
-            ReachableMethods targets = new ReachableMethods(graph, entryPoint, withoutStaticInitializers);
+            Filter filter = new Filter(e -> e.kind() != Kind.CLINIT && e.kind() != Kind.FINALIZE);
+            ReachableMethods targets = new ReachableMethods(graph, entryPoint, filter);
             targets.update();
             Iterator<MethodOrMethodContext> iterator = targets.listener();
 
@@ -51,8 +53,7 @@ public class ProjectCallGraph {
                     if (jreNative != null)
                         caller.addCalledNative(jreNative);
                     else
-                        LoggerFactory.getLogger(ProjectCallGraph.class)
-                                .warn("Native method {} not in JRE", target.getSignature());
+                        log.warn("Native method {} not in JRE", target.getSignature());
                 }
             }
         }
@@ -60,6 +61,13 @@ public class ProjectCallGraph {
 
     public List<Caller> getCallers() {
         return reachableSourceMethods;
+    }
+
+    public void printCallTrees() {
+        for (SootMethod entryPoint : Scene.v().getEntryPoints()) {
+            System.out.println(entryPoint);
+            recursivelyPrintCallTree(entryPoint, "  ", new HashSet<>());
+        }
     }
 
     private void findEntryPoints() {
@@ -75,5 +83,16 @@ public class ProjectCallGraph {
                 .filter(reachableFromEntry::contains)
                 .map(Caller::new)
                 .collect(Collectors.toList());
+    }
+
+    private void recursivelyPrintCallTree(SootMethod method, String indent, Set<SootMethod> visited) {
+        Iterator<Edge> edges = graph.edgesOutOf(method);
+
+        while (edges.hasNext()) {
+            Edge edge = edges.next();
+            System.out.println(indent + edge.kind() + " to " + edge.tgt());
+            if (visited.add(edge.tgt()))
+                recursivelyPrintCallTree(edge.tgt(), indent + "  ", visited);
+        }
     }
 }
