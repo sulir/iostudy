@@ -31,5 +31,4 @@ public class EntryPointPredicate implements Predicate<SootMethod> {
         else
             return false;
     }
-
 }

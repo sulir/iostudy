@@ -25,12 +25,12 @@ public class StaticAnalysis {
         ProjectCallGraph callGraph = new ProjectCallGraph(project, nativeMethods);
         callGraph.construct();
         project.setCallGraph(callGraph);
-        callGraph.printCallTrees();
 
         long start = System.currentTimeMillis();
-        callGraph.findNativeCallers();
+        callGraph.findNativeCalls();
         log.debug("Native callers found in {} seconds.",
                 String.format("%.1f", (System.currentTimeMillis() - start) / 1000d));
+
         try {
             new ProjectPersistence(project).saveToDB();
         } catch (SQLException e) {

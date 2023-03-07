@@ -38,7 +38,22 @@ public class ProjectCallGraph {
         findReachableSourceMethods();
     }
 
-    public void findNativeCallers() {
+    private void findEntryPoints() {
+        Scene.v().setEntryPoints(project.getSourceMethods()
+                .filter(entryPointPredicate)
+                .toList());
+    }
+
+    private void findReachableSourceMethods() {
+        ReachableMethods reachableFromEntry = Scene.v().getReachableMethods();
+
+        reachableSourceMethods = project.getSourceMethods()
+                .filter(reachableFromEntry::contains)
+                .map(Caller::new)
+                .collect(Collectors.toList());
+    }
+
+    public void findNativeCalls() {
         for (Caller caller : reachableSourceMethods) {
             Iterator<SootMethod> entryPoint = List.of(caller.getSootMethod()).iterator();
             Filter filter = new Filter(e -> e.kind() != Kind.CLINIT && e.kind() != Kind.FINALIZE);
@@ -68,21 +83,6 @@ public class ProjectCallGraph {
             System.out.println(entryPoint);
             recursivelyPrintCallTree(entryPoint, "  ", new HashSet<>());
         }
-    }
-
-    private void findEntryPoints() {
-        Scene.v().setEntryPoints(project.getSourceMethods()
-                .filter(entryPointPredicate)
-                .toList());
-    }
-
-    private void findReachableSourceMethods() {
-        ReachableMethods reachableFromEntry = Scene.v().getReachableMethods();
-
-        reachableSourceMethods = project.getSourceMethods()
-                .filter(reachableFromEntry::contains)
-                .map(Caller::new)
-                .collect(Collectors.toList());
     }
 
     private void recursivelyPrintCallTree(SootMethod method, String indent, Set<SootMethod> visited) {

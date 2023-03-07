@@ -24,6 +24,15 @@ public class Project {
         this.dependencies = listJARs(path.resolve("deps"));
     }
 
+    private List<String> listJARs(Path directory) {
+        File[] files = directory.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
+
+        if (files == null)
+            return List.of();
+        else
+            return Arrays.stream(files).map(File::getPath).sorted().toList();
+    }
+
     public void setup() {
         G.reset();
 
@@ -66,15 +75,4 @@ public class Project {
     public void setCallGraph(ProjectCallGraph callGraph) {
         this.callGraph = callGraph;
     }
-
-    private List<String> listJARs(Path directory) {
-        File[] files = directory.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
-
-        if (files == null)
-            return List.of();
-        else
-            return Arrays.stream(files).map(File::getPath).sorted().toList();
-    }
-
-
 }

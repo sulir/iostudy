@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class NativeMethodList {
     private static final String INSERT_SQL = "INSERT INTO natives VALUES (?, ?, ?, ?, ?)";
@@ -31,7 +30,7 @@ public class NativeMethodList {
         }
     }
 
-    public static NativeMethodList loadFromDB() throws SQLException {
+    private static NativeMethodList loadFromDB() throws SQLException {
         NativeMethodList list = new NativeMethodList();
         Connection connection = Database.getConnection();
         PreparedStatement selectAll = connection.prepareStatement("SELECT * FROM natives ORDER BY native_id");
@@ -53,7 +52,7 @@ public class NativeMethodList {
             return list;
     }
 
-    public static NativeMethodList loadFromTSV() {
+    private static NativeMethodList loadFromTSV() {
         NativeMethodList list = new NativeMethodList();
         InputStream stream = NativeMethodList.class.getResourceAsStream("/natives.tsv");
         assert stream != null;
@@ -88,9 +87,5 @@ public class NativeMethodList {
 
     public NativeMethod getNative(String key) {
         return methods.get(key);
-    }
-
-    public String toString() {
-        return methods.values().stream().map(NativeMethod::toString).collect(Collectors.joining("\n"));
     }
 }

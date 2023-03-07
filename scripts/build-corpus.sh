@@ -100,4 +100,4 @@ build_all() {
   done
 }
 
-build_all 3< projects.txt
+build_all 3< repos.txt

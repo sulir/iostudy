@@ -37,6 +37,14 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
         return category;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public String getKey() {
         return getClassName() + "." + getSignature();
     }
@@ -47,13 +55,5 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
                 .thenComparing(NativeMethod::getClassName, collator)
                 .thenComparing(NativeMethod::getSignature, collator)
                 .compare(this, other);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 }

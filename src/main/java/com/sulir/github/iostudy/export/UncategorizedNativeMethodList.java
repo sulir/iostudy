@@ -28,15 +28,6 @@ public class UncategorizedNativeMethodList {
 
     private UncategorizedNativeMethodList() { }
 
-    public void saveToTSV(Path file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file.toFile())) {
-            for (NativeMethod method : methods) {
-                writer.printf("%d\t%s\t%s\t%s\t%s\n", method.getId(), method.getModule(),
-                        method.getClassName(), method.getSignature(), method.getCategory());
-            }
-        }
-    }
-
     private void readAllModules() throws IOException {
         File modulesPath = Path.of(System.getProperty("java.home"), "mods").toFile();
         File[] files = modulesPath.listFiles();
@@ -44,7 +35,7 @@ public class UncategorizedNativeMethodList {
             throw new IOException("No module JARs in " + modulesPath);
 
         moduleJars = Arrays.stream(files).map(File::getPath).toArray(String[]::new);
-        
+
         for (String moduleJar : moduleJars) {
             setupSoot();
             readModule(moduleJar);
@@ -62,7 +53,7 @@ public class UncategorizedNativeMethodList {
     private void readModule(String moduleJar) {
         Options.v().set_process_dir(Collections.singletonList(moduleJar));
         Scene.v().loadNecessaryClasses();
-        
+
         int fileNameStart = moduleJar.lastIndexOf(File.separator) + 1;
         String moduleName = moduleJar.substring(fileNameStart, moduleJar.lastIndexOf('.'));
 
@@ -78,5 +69,14 @@ public class UncategorizedNativeMethodList {
 
         for (int i = 0; i < methods.size(); i++)
             methods.get(i).setId(i + 1);
+    }
+
+    public void saveToTSV(Path file) throws IOException {
+        try (PrintWriter writer = new PrintWriter(file.toFile())) {
+            for (NativeMethod method : methods) {
+                writer.printf("%d\t%s\t%s\t%s\t%s\n", method.getId(), method.getModule(),
+                        method.getClassName(), method.getSignature(), method.getCategory());
+            }
+        }
     }
 }

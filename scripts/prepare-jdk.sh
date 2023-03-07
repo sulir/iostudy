@@ -28,7 +28,7 @@ jdk-$jdk_version/bin/jimage extract --dir=jre-17/mods jre-17/lib/modules
 for dir in jre-17/mods/*; do
   jar -c -f "$dir.jar" -C "$dir" .
   pushd "$dir" || exit
-  zip -rq ../../lib/rt.jar */ > /dev/null
+  zip -rq ../../lib/rt.jar ./*/ > /dev/null
   popd || exit
 done
 rm -r jre-17/mods/*/
