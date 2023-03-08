@@ -11,11 +11,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Database {
-    private static Path path = Path.of("results.db3");
+    private static Path path;
     private static Connection connection;
 
-    public static void setDirectory(Path directory) {
-        path = directory.resolve(path);
+    public static void setDirectory(String directory) {
+        path = Path.of(directory, "results.db3");
     }
 
     public static Connection getConnection() {

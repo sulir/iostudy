@@ -4,45 +4,48 @@ import com.sulir.github.iostudy.code.StaticAnalysis;
 import com.sulir.github.iostudy.dynamic.DynamicAnalysis;
 import com.sulir.github.iostudy.export.NativeMethodsExport;
 
-import java.nio.file.Path;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
+    private static final List<Class<? extends Runnable>> programs = List.of(
+            StaticAnalysis.class,
+            DynamicAnalysis.class,
+            NativeMethodsExport.class);
+
     public static void main(String[] args) {
-        if (args.length > 0)
-            runProgram(args);
-        else
-            printHelp();
-
-        Database.disconnect();
-    }
-
-    private static void runProgram(String[] args) {
-        switch (args[0]) {
-            case "static" -> {
-                if (args.length == 3) {
-                    Database.setDirectory(Path.of(args[1]));
-                    new StaticAnalysis(Path.of(args[1]), args[2]).run();
-                } else {
-                    printHelp();
+        try {
+            for (Class<? extends Runnable> program : programs) {
+                if (program.getAnnotation(Program.class).name().equals(args[0])) {
+                    runProgram(program, Arrays.copyOfRange(args, 1, args.length));
+                    return;
                 }
             }
-            case "dynamic" -> {
-                if (args.length == 2)
-                    new DynamicAnalysis(Path.of(args[1])).run();
-                else
-                    printHelp();
-            }
-            case "export" -> {
-                if (args.length == 2)
-                    new NativeMethodsExport(Path.of(args[1])).run();
-                else
-                    printHelp();
-            }
-            default -> printHelp();
+            printHelp();
+        } catch (Exception e) {
+            printHelp();
         }
     }
 
+    private static void runProgram(Class<? extends Runnable> program, Object[] args) throws Exception {
+        Class<?>[] types = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
+        Constructor<?> constructor = program.getConstructor(types);
+        Runnable runnable = (Runnable) constructor.newInstance(args);
+
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Database.disconnect();
+    }
+
     private static void printHelp() {
-        System.out.println("Arguments: static <dir> <project> | dynamic <dir> | export <file>");
+        System.out.println("Arguments: " + programs.stream()
+                .map(p -> p.getAnnotation(Program.class))
+                .map(p -> p.name() + " " + p.arguments())
+                .collect(Collectors.joining(" | ")));
     }
 }

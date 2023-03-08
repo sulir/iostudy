@@ -1,5 +1,7 @@
 package com.sulir.github.iostudy.code;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.options.Options;
 
@@ -12,6 +14,7 @@ import java.util.stream.Stream;
 
 public class Project {
     private static final String RT_JAR = Path.of(System.getProperty("java.home"), "lib", "rt.jar").toString();
+    private static final Logger log = LoggerFactory.getLogger(Project.class);
 
     private final String name;
     private final List<String> jars;
@@ -74,5 +77,10 @@ public class Project {
 
     public void setCallGraph(ProjectCallGraph callGraph) {
         this.callGraph = callGraph;
+    }
+
+    public void logPhantomClasses() {
+        for (SootClass c : Scene.v().getPhantomClasses())
+            log.warn("Phantom class: {}.", c.getName());
     }
 }
