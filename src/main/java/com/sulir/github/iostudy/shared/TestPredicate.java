@@ -1,13 +1,11 @@
-package com.sulir.github.iostudy.code;
+package com.sulir.github.iostudy.shared;
 
 import soot.SootMethod;
 import soot.tagkit.VisibilityAnnotationTag;
 
 import java.util.function.Predicate;
 
-public class EntryPointPredicate implements Predicate<SootMethod> {
-    private static final Predicate<SootMethod> isMain = SootMethod::isMain;
-
+public class TestPredicate implements Predicate<SootMethod> {
     private static final Predicate<SootMethod> isJUnit3Test = (m) ->
             m.getDeclaringClass().getSuperclass().getName().equals("junit.framework.TestCase")
             && m.getName().startsWith("test") && m.getParameterCount() == 0;
@@ -20,7 +18,7 @@ public class EntryPointPredicate implements Predicate<SootMethod> {
 
     @Override
     public boolean test(SootMethod sootMethod) {
-        return isMain.or(isJUnit3Test).or(isJUnit4test).or(isJUnit5Test).test(sootMethod);
+        return isJUnit3Test.or(isJUnit4test).or(isJUnit5Test).test(sootMethod);
     }
 
     private static boolean hasAnnotation(SootMethod method, String annotationType) {

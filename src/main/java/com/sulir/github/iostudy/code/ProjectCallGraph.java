@@ -1,7 +1,6 @@
 package com.sulir.github.iostudy.code;
 
-import com.sulir.github.iostudy.shared.NativeMethod;
-import com.sulir.github.iostudy.shared.NativeMethodList;
+import com.sulir.github.iostudy.shared.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Kind;
@@ -15,10 +14,11 @@ import soot.jimple.toolkits.callgraph.Filter;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ProjectCallGraph {
-    private static final EntryPointPredicate entryPointPredicate = new EntryPointPredicate();
+    private static final Predicate<SootMethod> entryPointPredicate = new TestPredicate().or(SootMethod::isMain);
     private static final Logger log = LoggerFactory.getLogger(ProjectCallGraph.class);
 
     private final Project project;
@@ -36,6 +36,9 @@ public class ProjectCallGraph {
         SparkTransformer.v().transform();
         graph = Scene.v().getCallGraph();
         findReachableSourceMethods();
+
+        if (System.getenv("IOSTUDY_DEBUG") != null)
+            printCallTrees();
     }
 
     private void findEntryPoints() {

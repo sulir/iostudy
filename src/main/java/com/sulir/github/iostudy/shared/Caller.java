@@ -1,7 +1,5 @@
-package com.sulir.github.iostudy.code;
+package com.sulir.github.iostudy.shared;
 
-import com.sulir.github.iostudy.shared.JavaMethod;
-import com.sulir.github.iostudy.shared.NativeMethod;
 import soot.SootMethod;
 import soot.jimple.ReturnVoidStmt;
 

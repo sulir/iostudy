@@ -5,7 +5,7 @@ import soot.Type;
 
 import java.util.stream.Collectors;
 
-public class JavaMethod {
+public abstract class JavaMethod {
     protected final String className;
     protected final String signature;
 
