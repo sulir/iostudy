@@ -12,7 +12,7 @@ public class ProjectPersistence {
     private static final String REPLACE_PROJECTS = "REPLACE INTO projects " +
             "(name, classes, methods) VALUES (?, ?, ?)";
     private static final String INSERT_CALLER = "INSERT INTO callers " +
-            "(project_id, class, signature, units, empty) VALUES (?, ?, ?, ?, ?)";
+            "(project_id, class, signature, units, empty, test) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String INSERT_REFERENCE = "INSERT INTO %scallers_natives " +
             "(%scaller_id, native_id) VALUES (?, ?)";
 
@@ -54,7 +54,7 @@ public class ProjectPersistence {
 
         try (PreparedStatement insert = connection.prepareStatement(INSERT_CALLER, Statement.RETURN_GENERATED_KEYS)) {
             Database.setValues(insert, projectId, caller.getClassName(), caller.getSignature(),
-                    caller.getUnitCount(), caller.isEmpty());
+                    caller.getUnitCount(), caller.isEmpty(), caller.isTest());
             insert.execute();
 
             ResultSet newId = insert.getGeneratedKeys();

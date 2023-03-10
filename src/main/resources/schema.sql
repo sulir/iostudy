@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS callers (
     class TEXT NOT NULL,
     signature TEXT NOT NULL,
     units INTEGER NOT NULL,
-    empty BOOLEAN NOT NULL
+    empty BOOLEAN NOT NULL,
+    test BOOLEAN NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS callers_units ON callers (units);
