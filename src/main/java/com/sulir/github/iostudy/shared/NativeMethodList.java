@@ -1,6 +1,7 @@
 package com.sulir.github.iostudy.shared;
 
 import com.sulir.github.iostudy.Database;
+import com.sulir.github.iostudy.methods.NativeMethod;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -43,7 +44,7 @@ public class NativeMethodList {
             String signature = results.getString("signature");
             String category = results.getString("category");
             NativeMethod method = new NativeMethod(id, module, className, signature, category);
-            list.methods.put(method.getKey(), method);
+            list.methods.put(method.getUniqueKey(), method);
         }
 
         if (list.methods.isEmpty())
@@ -62,7 +63,7 @@ public class NativeMethodList {
             String[] fields = scanner.nextLine().split("\t");
             NativeMethod method = new NativeMethod(Long.parseLong(fields[0]),
                     fields[1], fields[2], fields[3], fields[4]);
-            list.methods.put(method.getKey(), method);
+            list.methods.put(method.getUniqueKey(), method);
         }
 
         return list;

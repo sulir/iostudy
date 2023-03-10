@@ -1,5 +1,7 @@
 package com.sulir.github.iostudy.code;
 
+import com.sulir.github.iostudy.methods.NativeMethod;
+import com.sulir.github.iostudy.methods.StaticCaller;
 import com.sulir.github.iostudy.shared.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ public class ProjectCallGraph {
     private final Project project;
     private final NativeMethodList nativeMethods;
     private CallGraph graph;
-    private List<Caller> reachableSourceMethods = new ArrayList<>();
+    private List<StaticCaller> reachableSourceMethods = new ArrayList<>();
 
     public ProjectCallGraph(Project project, NativeMethodList nativeMethods) {
         this.project = project;
@@ -52,12 +54,12 @@ public class ProjectCallGraph {
 
         reachableSourceMethods = project.getSourceMethods()
                 .filter(reachableFromEntry::contains)
-                .map(Caller::new)
+                .map(StaticCaller::new)
                 .collect(Collectors.toList());
     }
 
     public void findNativeCalls() {
-        for (Caller caller : reachableSourceMethods) {
+        for (StaticCaller caller : reachableSourceMethods) {
             Iterator<SootMethod> entryPoint = List.of(caller.getSootMethod()).iterator();
             Filter filter = new Filter(e -> e.kind() != Kind.CLINIT && e.kind() != Kind.FINALIZE);
             ReachableMethods targets = new ReachableMethods(graph, entryPoint, filter);
@@ -67,7 +69,7 @@ public class ProjectCallGraph {
             while (iterator.hasNext()) {
                 SootMethod target = iterator.next().method();
                 if (target.isNative()) {
-                    NativeMethod jreNative = nativeMethods.getNative(new NativeMethod(target).getKey());
+                    NativeMethod jreNative = nativeMethods.getNative(new NativeMethod(target).getUniqueKey());
                     if (jreNative != null)
                         caller.addCalledNative(jreNative);
                     else
@@ -77,7 +79,7 @@ public class ProjectCallGraph {
         }
     }
 
-    public List<Caller> getCallers() {
+    public List<StaticCaller> getCallers() {
         return reachableSourceMethods;
     }
 

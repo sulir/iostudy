@@ -2,7 +2,7 @@ package com.sulir.github.iostudy.info;
 
 import com.sulir.github.iostudy.Database;
 import com.sulir.github.iostudy.Program;
-import com.sulir.github.iostudy.shared.Caller;
+import com.sulir.github.iostudy.methods.StaticCaller;
 import com.sulir.github.iostudy.shared.Project;
 import com.sulir.github.iostudy.shared.TestPredicate;
 
@@ -58,12 +58,12 @@ public class AdditionalInfo implements Runnable {
     }
 
     private void findTests(Project project, long projectId) throws SQLException {
-        List<Caller> tests = project.getSourceMethods()
+        List<StaticCaller> tests = project.getSourceMethods()
                 .filter(testPredicate)
-                .map(Caller::new)
+                .map(StaticCaller::new)
                 .toList();
 
-        for (Caller test : tests) {
+        for (StaticCaller test : tests) {
             try (PreparedStatement statement = Database.getConnection().prepareStatement(UPDATE_TEST)) {
                 Database.setValues(statement, projectId, test.getClassName(), test.getSignature());
                 statement.execute();

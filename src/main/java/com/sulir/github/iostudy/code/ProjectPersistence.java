@@ -1,8 +1,8 @@
 package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.Database;
-import com.sulir.github.iostudy.shared.Caller;
-import com.sulir.github.iostudy.shared.NativeMethod;
+import com.sulir.github.iostudy.methods.StaticCaller;
+import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.shared.Project;
 
 import java.sql.*;
@@ -25,7 +25,7 @@ public class ProjectPersistence {
     public void saveToDB() throws SQLException {
         projectId = saveProject();
 
-        for (Caller caller : project.getCallGraph().getCallers()) {
+        for (StaticCaller caller : project.getCallGraph().getCallers()) {
             saveCaller(caller);
         }
 
@@ -48,7 +48,7 @@ public class ProjectPersistence {
         }
     }
 
-    private void saveCaller(Caller caller) throws SQLException {
+    private void saveCaller(StaticCaller caller) throws SQLException {
         Connection connection = Database.getConnection();
 
         try (PreparedStatement insert = connection.prepareStatement(INSERT_CALLER, Statement.RETURN_GENERATED_KEYS)) {
@@ -62,7 +62,7 @@ public class ProjectPersistence {
         }
     }
 
-    private void saveCalledNatives(Caller caller, long callerId) throws SQLException {
+    private void saveCalledNatives(StaticCaller caller, long callerId) throws SQLException {
         Connection connection = Database.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(INSERT_REFERENCE)) {

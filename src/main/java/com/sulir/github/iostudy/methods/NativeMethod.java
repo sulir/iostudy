@@ -1,4 +1,4 @@
-package com.sulir.github.iostudy.shared;
+package com.sulir.github.iostudy.methods;
 
 import org.jetbrains.annotations.NotNull;
 import soot.SootMethod;
@@ -12,7 +12,7 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
 
     private final String module;
     private final String category;
-    protected long id;
+    protected long id = -1;
 
     public NativeMethod(long id, String module, String className, String signature, String category) {
         super(className, signature);
@@ -22,7 +22,9 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
     }
 
     public NativeMethod(String module, SootMethod sootMethod) {
-        this(-1, module, sootMethod.getDeclaringClass().getName(), getSignature(sootMethod), "?");
+        super(sootMethod);
+        this.module = module;
+        this.category = "?";
     }
 
     public NativeMethod(SootMethod sootMethod) {
@@ -43,10 +45,6 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getKey() {
-        return getClassName() + "." + getSignature();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.sulir.github.iostudy.export;
 
-import com.sulir.github.iostudy.shared.NativeMethod;
+import com.sulir.github.iostudy.methods.NativeMethod;
 import soot.G;
 import soot.Scene;
 import soot.SootMethod;
