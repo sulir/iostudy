@@ -2,11 +2,11 @@ package com.sulir.github.iostudy.methods;
 
 import soot.SootMethod;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Caller extends JavaMethod {
-    private final List<NativeMethod> calledNatives = new ArrayList<>();
+    private final Set<NativeMethod> calledNatives = new HashSet<>();
 
     public Caller(String className, String signature) {
         super(className, signature);
@@ -16,7 +16,7 @@ public class Caller extends JavaMethod {
         super(sootMethod);
     }
 
-    public List<NativeMethod> getCalledNatives() {
+    public Set<NativeMethod> getCalledNatives() {
         return calledNatives;
     }
 

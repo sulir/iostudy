@@ -3,26 +3,22 @@ package com.sulir.github.iostudy.dynamic;
 import com.sulir.github.iostudy.methods.DynamicCaller;
 import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.shared.NativeMethodList;
-import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.VMDisconnectedException;
-import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.*;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.MethodEntryEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.MethodEntryRequest;
 
-import java.util.*;
-
 public class MethodTracer {
     private final VirtualMachine vm;
     private final NativeMethodList nativeMethods;
-    private final Map<String, DynamicCaller> callers = new HashMap<>();
+    private final Benchmark benchmark;
 
-    public MethodTracer(VirtualMachine vm, NativeMethodList nativeMethods) {
+    public MethodTracer(VirtualMachine vm, NativeMethodList nativeMethods, Benchmark benchmark) {
         this.vm = vm;
         this.nativeMethods = nativeMethods;
+        this.benchmark = benchmark;
     }
 
     public void trace() {
@@ -64,28 +60,36 @@ public class MethodTracer {
     }
 
     private void recordNativeMethod(MethodEntryEvent event) {
+        if (!isInJREModule(event.method()))
+            throw new RuntimeException("Non-JRE native method: " + event.method());
+
         NativeMethod nativeMethod = nativeMethods.getNative(new DynamicCaller(event.method()).getUniqueKey());
         try {
-            for (StackFrame frame : event.thread().frames()) {
-                DynamicCaller caller = callers.get(new DynamicCaller(frame.location().method()).getUniqueKey());
-                if (caller != null)
-                    caller.addCalledNative(nativeMethod);
-            }
+            for (StackFrame frame : event.thread().frames())
+                benchmark.registerCalledNative(frame.location().method(), nativeMethod);
         } catch (IncompatibleThreadStateException e) {
             e.printStackTrace();
         }
     }
 
     private void recordNonNativeMethod(MethodEntryEvent event) {
-        String module = event.method().declaringType().module().name();
-        if (module != null && (module.startsWith("java.") || module.startsWith("jdk.")))
+        Method method = event.method();
+
+        if (isInJREModule(method) || isInJDKModule(method)
+                || method.isSynthetic() || method.isBridge()
+                || method.isStaticInitializer() || method.isAbstract())
             return;
 
-        DynamicCaller caller = new DynamicCaller(event.method());
-        callers.putIfAbsent(caller.getUniqueKey(), caller);
+        benchmark.registerCaller(event.method());
     }
 
-    public List<DynamicCaller> getCallers() {
-        return new ArrayList<>(callers.values());
+    private boolean isInJREModule(Method method) {
+        String module = method.declaringType().module().name();
+        return module != null && module.startsWith("java.");
+    }
+
+    private boolean isInJDKModule(Method method) {
+        String module = method.declaringType().module().name();
+        return module != null && module.startsWith("jdk.");
     }
 }

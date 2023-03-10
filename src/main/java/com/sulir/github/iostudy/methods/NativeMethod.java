@@ -6,6 +6,7 @@ import soot.SootMethod;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Objects;
 
 public class NativeMethod extends JavaMethod implements Comparable<NativeMethod> {
     private static final Collator collator = Collator.getInstance(new Locale("en", "US"));
@@ -53,5 +54,27 @@ public class NativeMethod extends JavaMethod implements Comparable<NativeMethod>
                 .thenComparing(NativeMethod::getClassName, collator)
                 .thenComparing(NativeMethod::getSignature, collator)
                 .compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+        if (other == null || getClass() != other.getClass())
+            return false;
+        NativeMethod that = (NativeMethod) other;
+
+        if (id == -1 || that.id == -1)
+            return getClassName().equals(that.getClassName()) && getSignature().equals(that.getSignature());
+        else
+            return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        if (id == -1)
+            return Objects.hash(getClassName(), getSignature());
+        else
+            return Objects.hash(id);
     }
 }

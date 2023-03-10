@@ -1,6 +1,7 @@
 package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.Database;
+import com.sulir.github.iostudy.methods.Caller;
 import com.sulir.github.iostudy.methods.StaticCaller;
 import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.shared.Project;
@@ -12,8 +13,8 @@ public class ProjectPersistence {
             "(name, classes, methods) VALUES (?, ?, ?)";
     private static final String INSERT_CALLER = "INSERT INTO callers " +
             "(project_id, class, signature, units, empty) VALUES (?, ?, ?, ?, ?)";
-    private static final String INSERT_REFERENCE = "INSERT INTO callers_natives " +
-            "(caller_id, native_id) VALUES (?, ?)";
+    private static final String INSERT_REFERENCE = "INSERT INTO %scallers_natives " +
+            "(%scaller_id, native_id) VALUES (?, ?)";
 
     private final Project project;
     private long projectId;
@@ -58,14 +59,15 @@ public class ProjectPersistence {
 
             ResultSet newId = insert.getGeneratedKeys();
             newId.next();
-            saveCalledNatives(caller, newId.getLong(1));
+            saveCalledNatives(caller, newId.getLong(1), "");
         }
     }
 
-    private void saveCalledNatives(StaticCaller caller, long callerId) throws SQLException {
+    public static void saveCalledNatives(Caller caller, long callerId, String prefix) throws SQLException {
         Connection connection = Database.getConnection();
 
-        try (PreparedStatement statement = connection.prepareStatement(INSERT_REFERENCE)) {
+        String sql = String.format(INSERT_REFERENCE, prefix, prefix);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (NativeMethod nativeMethod : caller.getCalledNatives()) {
                 Database.setValues(statement, callerId, nativeMethod.getId());
                 statement.addBatch();

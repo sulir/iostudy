@@ -16,10 +16,10 @@ mv jdk-$jdk_version-src jdk-17-src
 find jdk-17-src \( -name aix -o -name bsd -o -name macosx -o -name windows \) -exec rm -rf {} +
 rm -r jdk-17-src/{make,src/{demo,sample,utils},test}
 
-# Prepare JRE with only java.* modules.
+# Prepare JRE with only java.* modules (and debugging support).
 # This is used for exporting uncategorized src/main/resources/natives.tsv
 # and running programs for dynamic analysis.
-jre_modules=java.se,java.smartcardio,jdk.jdwp.agent
+jre_modules=java.se,java.smartcardio,jdk.jdwp.agent,jdk.jdi
 jdk-$jdk_version/bin/jlink --module-path jdk-$jdk_version/jmods --add-modules $jre_modules \
   --no-header-files --no-man-pages --output jre-17
 

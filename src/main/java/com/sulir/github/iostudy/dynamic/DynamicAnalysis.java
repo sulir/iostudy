@@ -6,17 +6,15 @@ import com.sulir.github.iostudy.shared.NativeMethodList;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 
 @Program(name = "dynamic", arguments = "<benchmark> <port> <dir>")
 public class DynamicAnalysis implements Runnable {
-    private final String benchmark;
+    private final Benchmark benchmark;
     private final String port;
 
     public DynamicAnalysis(String benchmark, String port, String directory) {
-        this.benchmark = benchmark;
+        this.benchmark = new Benchmark(benchmark);
         this.port = port;
         Database.setDirectory(directory);
     }
@@ -28,16 +26,11 @@ public class DynamicAnalysis implements Runnable {
             Debugger debugger = new Debugger(port);
             VirtualMachine vm = debugger.attach();
 
-            MethodTracer tracer = new MethodTracer(vm, nativeMethods);
+            MethodTracer tracer = new MethodTracer(vm, nativeMethods, benchmark);
             tracer.trace();
 
-            System.out.println(benchmark);
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("dynamic.bin"))) {
-                out.writeObject(tracer.getCallers());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (IllegalConnectorArgumentsException e) {
+            new BenchmarkPersistence(benchmark).saveToDB();
+        } catch (IllegalConnectorArgumentsException | SQLException e) {
             e.printStackTrace();
         }
     }

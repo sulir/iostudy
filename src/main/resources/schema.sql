@@ -38,3 +38,22 @@ CREATE TABLE IF NOT EXISTS callers_natives (
 
 CREATE INDEX IF NOT EXISTS cn_caller_id ON callers_natives (caller_id);
 CREATE INDEX IF NOT EXISTS cn_native_id ON callers_natives (native_id);
+
+CREATE TABLE IF NOT EXISTS benchmarks (
+    benchmark_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS dyn_callers (
+    dyn_caller_id INTEGER PRIMARY KEY,
+    benchmark_id INTEGER NOT NULL REFERENCES benchmarks(benchmark_id) ON DELETE CASCADE,
+    class TEXT NOT NULL,
+    signature TEXT NOT NULL,
+    bytes INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dyn_callers_natives (
+    dyn_caller_id INTEGER NOT NULL REFERENCES dyn_callers(dyn_caller_id) ON DELETE CASCADE,
+    native_id INTEGER NOT NULL REFERENCES natives(native_id),
+    PRIMARY KEY (dyn_caller_id, native_id)
+);
