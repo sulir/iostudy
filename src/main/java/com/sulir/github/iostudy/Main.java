@@ -3,6 +3,7 @@ package com.sulir.github.iostudy;
 import com.sulir.github.iostudy.code.StaticAnalysis;
 import com.sulir.github.iostudy.dynamic.DynamicAnalysis;
 import com.sulir.github.iostudy.export.NativeMethodsExport;
+import com.sulir.github.iostudy.results.ResultAnalysis;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -11,9 +12,10 @@ import java.util.stream.Collectors;
 
 public class Main {
     private static final List<Class<? extends Runnable>> programs = List.of(
+            NativeMethodsExport.class,
             StaticAnalysis.class,
             DynamicAnalysis.class,
-            NativeMethodsExport.class);
+            ResultAnalysis.class);
 
     public static void main(String[] args) {
         try {
