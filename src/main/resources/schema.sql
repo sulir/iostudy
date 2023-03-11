@@ -28,8 +28,9 @@ CREATE TABLE IF NOT EXISTS callers (
     test BOOLEAN NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS callers_project_id ON callers (project_id);
 CREATE INDEX IF NOT EXISTS callers_units ON callers (units);
-CREATE INDEX IF NOT EXISTS callers_empty ON callers (empty);
+CREATE INDEX IF NOT EXISTS callers_test ON callers (test);
 
 CREATE TABLE IF NOT EXISTS callers_natives (
     caller_id INTEGER NOT NULL REFERENCES callers(caller_id) ON DELETE CASCADE,
@@ -39,6 +40,12 @@ CREATE TABLE IF NOT EXISTS callers_natives (
 
 CREATE INDEX IF NOT EXISTS cn_caller_id ON callers_natives (caller_id);
 CREATE INDEX IF NOT EXISTS cn_native_id ON callers_natives (native_id);
+
+CREATE VIEW IF NOT EXISTS io_calls AS
+    SELECT * FROM callers
+    JOIN callers_natives USING (caller_id)
+    JOIN natives USING (native_id)
+    WHERE category IN ('invocation', 'desktop', 'time', 'files', 'network', 'os');
 
 CREATE TABLE IF NOT EXISTS benchmarks (
     benchmark_id INTEGER PRIMARY KEY,
