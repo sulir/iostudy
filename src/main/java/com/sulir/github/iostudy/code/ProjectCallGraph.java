@@ -2,7 +2,9 @@ package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.methods.StaticCaller;
-import com.sulir.github.iostudy.shared.*;
+import com.sulir.github.iostudy.shared.NativeMethodList;
+import com.sulir.github.iostudy.shared.Project;
+import com.sulir.github.iostudy.shared.TestPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Kind;
@@ -39,8 +41,10 @@ public class ProjectCallGraph {
         graph = Scene.v().getCallGraph();
         findReachableSourceMethods();
 
-        if (System.getenv("IOSTUDY_DEBUG") != null)
+        if (System.getenv("IOSTUDY_TREE") != null)
             printCallTrees();
+        if (System.getenv("IOSTUDY_REACHABLE") != null)
+            printReachableMethods();
     }
 
     private void findEntryPoints() {
@@ -61,8 +65,7 @@ public class ProjectCallGraph {
     public void findNativeCalls() {
         for (StaticCaller caller : reachableSourceMethods) {
             Iterator<SootMethod> entryPoint = List.of(caller.getSootMethod()).iterator();
-            Filter filter = new Filter(e -> e.kind() != Kind.CLINIT && e.kind() != Kind.FINALIZE);
-            ReachableMethods targets = new ReachableMethods(graph, entryPoint, filter);
+            ReachableMethods targets = new ReachableMethods(graph, entryPoint, createFilter());
             targets.update();
             Iterator<MethodOrMethodContext> iterator = targets.listener();
 
@@ -79,6 +82,10 @@ public class ProjectCallGraph {
         }
     }
 
+    private Filter createFilter() {
+        return new Filter(e -> e.kind() != Kind.CLINIT && e.kind() != Kind.FINALIZE);
+    }
+
     public List<StaticCaller> getCallers() {
         return reachableSourceMethods;
     }
@@ -91,13 +98,38 @@ public class ProjectCallGraph {
     }
 
     private void recursivelyPrintCallTree(SootMethod method, String indent, Set<SootMethod> visited) {
-        Iterator<Edge> edges = graph.edgesOutOf(method);
+        Iterator<Edge> edges = createFilter().wrap(graph.edgesOutOf(method));
+        Set<SootMethod> printed = new HashSet<>();
 
         while (edges.hasNext()) {
             Edge edge = edges.next();
+            if (!printed.add(edge.tgt()))
+                continue;
+
             System.out.println(indent + edge.kind() + " to " + edge.tgt());
             if (visited.add(edge.tgt()))
                 recursivelyPrintCallTree(edge.tgt(), indent + "  ", visited);
+            else
+                System.out.println(indent + "  ...");
+        }
+    }
+
+    public void printReachableMethods() {
+        for (StaticCaller caller : reachableSourceMethods) {
+            System.out.println(caller);
+
+            Iterator<SootMethod> entryPoint = List.of(caller.getSootMethod()).iterator();
+            ReachableMethods targets = new ReachableMethods(graph, entryPoint, createFilter());
+            targets.update();
+            Iterator<MethodOrMethodContext> iterator = targets.listener();
+
+            List<SootMethod> sorted = new ArrayList<>();
+            while (iterator.hasNext())
+                sorted.add(iterator.next().method());
+            sorted.sort(Comparator.comparing(SootMethod::getSignature));
+
+            for (SootMethod target : sorted)
+                System.out.println("  " + target);
         }
     }
 }
