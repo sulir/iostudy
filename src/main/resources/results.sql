@@ -73,15 +73,15 @@ END;
 
 SELECT
     a.name AS project_name,
-    100.0 * native_callers / all_callers AS io_percent
+    100.0 * COALESCE(io_callers, 0) / all_callers AS io_percent
 FROM (
     SELECT
         project_id,
-        COUNT(DISTINCT(caller_id)) AS native_callers
+        COUNT(DISTINCT(caller_id)) AS io_callers
     FROM io_calls
     GROUP BY project_id
 ) AS n
-JOIN (
+RIGHT JOIN (
     SELECT
         project_id,
         name,
@@ -127,12 +127,12 @@ WHERE rank <= 10;
 
 SELECT
     COALESCE(n.units, t.units) AS size,
-    COALESCE(native, 0) AS native,
-    COALESCE(total, 0) - COALESCE(native, 0) AS non_native
+    COALESCE(io, 0) AS io,
+    COALESCE(total, 0) - COALESCE(io, 0) AS non_io
 FROM (
     SELECT
         units,
-        COUNT(DISTINCT(caller_id)) AS native
+        COUNT(DISTINCT(caller_id)) AS io
     FROM io_calls
     GROUP BY units
 ) AS n
@@ -150,11 +150,11 @@ ORDER BY size;
 SELECT
     CASE WHEN a.test IS TRUE then 'yes' ELSE 'no' END AS test,
     100.0 * all_callers / SUM(all_callers) OVER () AS test_percent,
-    100.0 * native_callers / all_callers AS native_percent
+    100.0 * io_callers / all_callers AS io_percent
 FROM (
     SELECT
         test,
-        COUNT(DISTINCT(caller_id)) AS native_callers
+        COUNT(DISTINCT(caller_id)) AS io_callers
     FROM io_calls
     GROUP BY test
 ) AS n
