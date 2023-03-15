@@ -2,7 +2,7 @@ package com.sulir.github.iostudy.dynamic;
 
 import com.sulir.github.iostudy.methods.DynamicCaller;
 import com.sulir.github.iostudy.methods.NativeMethod;
-import com.sulir.github.iostudy.shared.NativeMethodList;
+import com.sulir.github.iostudy.methods.NativeMethodList;
 import com.sun.jdi.*;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventQueue;

@@ -2,9 +2,7 @@ package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.methods.StaticCaller;
-import com.sulir.github.iostudy.shared.NativeMethodList;
-import com.sulir.github.iostudy.shared.Project;
-import com.sulir.github.iostudy.shared.TestPredicate;
+import com.sulir.github.iostudy.methods.NativeMethodList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Kind;

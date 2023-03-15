@@ -4,7 +4,6 @@ import com.sulir.github.iostudy.Database;
 import com.sulir.github.iostudy.methods.Caller;
 import com.sulir.github.iostudy.methods.StaticCaller;
 import com.sulir.github.iostudy.methods.NativeMethod;
-import com.sulir.github.iostudy.shared.Project;
 
 import java.sql.*;
 

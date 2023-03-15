@@ -2,7 +2,7 @@ package com.sulir.github.iostudy.dynamic;
 
 import com.sulir.github.iostudy.Database;
 import com.sulir.github.iostudy.Program;
-import com.sulir.github.iostudy.shared.NativeMethodList;
+import com.sulir.github.iostudy.methods.NativeMethodList;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 

@@ -1,7 +1,6 @@
-package com.sulir.github.iostudy.shared;
+package com.sulir.github.iostudy.methods;
 
 import com.sulir.github.iostudy.Database;
-import com.sulir.github.iostudy.methods.NativeMethod;
 
 import java.io.InputStream;
 import java.sql.Connection;

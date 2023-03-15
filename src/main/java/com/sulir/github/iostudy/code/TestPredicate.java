@@ -1,4 +1,4 @@
-package com.sulir.github.iostudy.shared;
+package com.sulir.github.iostudy.code;
 
 import soot.SootMethod;
 import soot.tagkit.VisibilityAnnotationTag;

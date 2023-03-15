@@ -1,6 +1,5 @@
-package com.sulir.github.iostudy.shared;
+package com.sulir.github.iostudy.code;
 
-import com.sulir.github.iostudy.code.ProjectCallGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;

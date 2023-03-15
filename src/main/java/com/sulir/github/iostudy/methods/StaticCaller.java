@@ -1,6 +1,6 @@
 package com.sulir.github.iostudy.methods;
 
-import com.sulir.github.iostudy.shared.TestPredicate;
+import com.sulir.github.iostudy.code.TestPredicate;
 import soot.SootMethod;
 import soot.jimple.ReturnVoidStmt;
 
