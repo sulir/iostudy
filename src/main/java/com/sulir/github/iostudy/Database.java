@@ -4,24 +4,19 @@ import org.sqlite.SQLiteConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Database {
-    private static Path path;
+    private static final String PATH = "results.db3";
     private static Connection connection;
-
-    public static void setDirectory(String directory) {
-        path = Path.of(directory, "results.db3");
-    }
 
     public static Connection getConnection() {
         if (connection == null) {
             try {
-                connection = DriverManager.getConnection("jdbc:sqlite:" + path + "?foreign_keys=on");
+                connection = DriverManager.getConnection("jdbc:sqlite:" + PATH + "?foreign_keys=on");
                 connection.setAutoCommit(false);
                 ((SQLiteConnection) connection).setBusyTimeout(30_000);
                 createSchema();

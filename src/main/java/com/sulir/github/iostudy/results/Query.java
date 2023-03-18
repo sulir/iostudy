@@ -37,7 +37,7 @@ public class Query {
                 .collect(Collectors.joining("\n"));
     }
 
-    public void perform(PrintWriter writer, String directory) throws SQLException, IOException {
+    public void perform(PrintWriter writer, Path directory) throws SQLException, IOException {
         if (sql.isBlank())
             return;
         writer.println(description);
@@ -51,7 +51,7 @@ public class Query {
                 writeTable(resultSet, writer);
             } else {
                 writer.println("--> " + file);
-                writeTable(resultSet, new PrintWriter(Path.of(directory, file).toFile()));
+                writeTable(resultSet, new PrintWriter(directory.resolve(file).toFile()));
             }
         }
         writer.println();

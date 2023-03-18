@@ -1,6 +1,5 @@
 package com.sulir.github.iostudy.code;
 
-import com.sulir.github.iostudy.Database;
 import com.sulir.github.iostudy.Program;
 import com.sulir.github.iostudy.methods.NativeMethodList;
 import org.slf4j.Logger;
@@ -9,15 +8,15 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.sql.SQLException;
 
-@Program(name = "static", arguments = "<corpus> <project>")
+@Program(name = "static", arguments = "<project>")
 public class StaticAnalysis implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(StaticAnalysis.class);
+    private static final String CORPUS_DIR = "corpus";
 
     private final Path path;
 
-    public StaticAnalysis(String corpusDir, String project) {
-        this.path = Path.of(corpusDir, project);
-        Database.setDirectory(corpusDir);
+    public StaticAnalysis(String project) {
+        this.path = Path.of(CORPUS_DIR, project);
     }
 
     public void run() {

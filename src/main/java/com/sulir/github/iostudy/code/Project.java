@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Project {
-    private static final String RT_JAR = Path.of(System.getProperty("java.home"), "lib", "rt.jar").toString();
     private static final Logger log = LoggerFactory.getLogger(Project.class);
 
     private final String name;
@@ -40,7 +39,8 @@ public class Project {
         G.reset();
 
         Options.v().set_process_dir(jars);
-        String classpath = Stream.concat(dependencies.stream(), Stream.of(RT_JAR))
+        List<String> jreClasspath = listJARs(Path.of(System.getProperty("java.home"), "mods"));
+        String classpath = Stream.concat(dependencies.stream(), jreClasspath.stream())
                 .collect(Collectors.joining(File.pathSeparator));
         Options.v().set_soot_classpath(classpath);
 

@@ -1,4 +1,4 @@
-package com.sulir.github.iostudy.export;
+package com.sulir.github.iostudy.natives;
 
 import com.sulir.github.iostudy.methods.NativeMethod;
 import soot.G;
@@ -71,8 +71,8 @@ public class UncategorizedNativeMethodList {
             methods.get(i).setId(i + 1);
     }
 
-    public void saveToTSV(Path file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file.toFile())) {
+    public void saveToTSV(String file) throws IOException {
+        try (PrintWriter writer = new PrintWriter(file)) {
             for (NativeMethod method : methods) {
                 writer.printf("%d\t%s\t%s\t%s\t%s\n", method.getId(), method.getModule(),
                         method.getClassName(), method.getSignature(), method.getCategory());

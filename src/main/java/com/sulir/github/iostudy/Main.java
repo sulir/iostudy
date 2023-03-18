@@ -2,7 +2,7 @@ package com.sulir.github.iostudy;
 
 import com.sulir.github.iostudy.code.StaticAnalysis;
 import com.sulir.github.iostudy.dynamic.DynamicAnalysis;
-import com.sulir.github.iostudy.export.NativeMethodsExport;
+import com.sulir.github.iostudy.natives.NativeMethodsExport;
 import com.sulir.github.iostudy.results.ResultAnalysis;
 
 import java.lang.reflect.Constructor;

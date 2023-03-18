@@ -2,15 +2,19 @@
 
 # Build a corpus of Java projects from GitHub fulfilling inclusion and exclusion criteria.
 
-: "${1?Missing argument: output_directory}"
-corpus="$1"
-gh_auth="Authorization: Bearer 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"
 shopt -s nullglob
+
+projects_file=projects.txt
+gh_token_file=ghtoken.txt
+corpus_dir=$(realpath corpus)
+
+mkdir -p "$corpus_dir"
+[ -f "$gh_token_file" ] && gh_auth="Authorization: Bearer $(cat "$gh_token_file")"
 
 build_project() {
   repo=$1
 
-  curl -IfLsSo /dev/null "https://api.github.com/repos/$repo/contents/pom.xml" -H "$gh_auth" || return
+  curl -LsSIfo /dev/null "https://api.github.com/repos/$repo/contents/pom.xml" -H "$gh_auth" || return
   curl -LsS "https://api.github.com/repos/$repo/tarball" -H "$gh_auth" \
     | tar -xz --strip-components 1 || return
 
@@ -33,7 +37,7 @@ build_project() {
       && rm "$jarfile" \
       && jar -cf "$jarfile" -C BOOT-INF/classes .
 
-    find "$corpus" -path '*/jars/*' -name "$(basename "$jarfile")" | [ "$(wc -l)" -ge 2 ] \
+    find "$corpus_dir" -path '*/jars/*' -name "$(basename "$jarfile")" | [ "$(wc -l)" -ge 2 ] \
       && { echo "Duplicate JAR!"; return 1; };
   done
 
@@ -81,7 +85,7 @@ read_classes() {
 build_all() {
   while read -ru3 repo; do
     echo "---------- $repo ----------"
-    dir="$corpus/${repo/\//__}"
+    dir="$corpus_dir/${repo/\//__}"
     mkdir -p "$dir/source"
     pushd "$dir/source" > /dev/null || exit
     build_project "$repo"
@@ -97,7 +101,9 @@ build_all() {
     if [ "$(df -m --output=avail ~ | tail -n 1)" -lt 8192 ]; then
       read -rt 30 -p $'Low disk space, erasing Maven dir ~/.m2. Press Enter to cancel\n' || rm -rf ~/.m2
     fi
+
+    return $result
   done
 }
 
-build_all 3< repos.txt
+build_all 3< "$projects_file"

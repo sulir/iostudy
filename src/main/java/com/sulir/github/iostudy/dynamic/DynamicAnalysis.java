@@ -1,6 +1,5 @@
 package com.sulir.github.iostudy.dynamic;
 
-import com.sulir.github.iostudy.Database;
 import com.sulir.github.iostudy.Program;
 import com.sulir.github.iostudy.methods.NativeMethodList;
 import com.sun.jdi.VirtualMachine;
@@ -8,15 +7,14 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 
 import java.sql.SQLException;
 
-@Program(name = "dynamic", arguments = "<benchmark> <port> <dir>")
+@Program(name = "dynamic", arguments = "<benchmark> <port>")
 public class DynamicAnalysis implements Runnable {
     private final Benchmark benchmark;
     private final String port;
 
-    public DynamicAnalysis(String benchmark, String port, String directory) {
+    public DynamicAnalysis(String benchmark, String port) {
         this.benchmark = new Benchmark(benchmark);
         this.port = port;
-        Database.setDirectory(directory);
     }
 
     public void run() {

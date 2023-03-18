@@ -1,22 +1,17 @@
-package com.sulir.github.iostudy.export;
+package com.sulir.github.iostudy.natives;
 
 import com.sulir.github.iostudy.Program;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
-@Program(name = "export", arguments = "<file>")
+@Program(name = "natives")
 public class NativeMethodsExport implements Runnable {
-    private final Path file;
-
-    public NativeMethodsExport(String file) {
-        this.file = Path.of(file);
-    }
+    private static final String FILE = "natives.tsv";
 
     public void run() {
         try {
             UncategorizedNativeMethodList list = UncategorizedNativeMethodList.loadFromJARs();
-            list.saveToTSV(file);
+            list.saveToTSV(FILE);
         } catch (IOException e) {
             e.printStackTrace();
         }
