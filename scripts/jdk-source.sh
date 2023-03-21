@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Prepare JDK source code for manual inspection.
+# Prepare JDK source code for manual inspection
 
 jdk_url=https://github.com/adoptium/temurin17-binaries/releases/download
 

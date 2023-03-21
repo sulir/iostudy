@@ -2,7 +2,8 @@ FROM eclipse-temurin:17.0.6_10-jdk
 
 ENV JDK_HOME=$JAVA_HOME \
     JRE_HOME=/opt/java/jre \
-    APP_HOME=/opt/app
+    APP_HOME=/opt/app \
+    DATA_DIR=/opt/data
 RUN JRE_MODULES=java.se,java.smartcardio,jdk.jdwp.agent,jdk.jdi && \
     jlink --add-modules $JRE_MODULES --no-header-files --no-man-pages --output $JRE_HOME && \
     jimage extract --dir=$JRE_HOME/mods $JRE_HOME/lib/modules && \
@@ -22,7 +23,8 @@ RUN cd $APP_HOME && \
     mv target/iostudy.jar . && \
     rm -rf target
 
+VOLUME $DATA_DIR
+WORKDIR $DATA_DIR
+
 COPY scripts $APP_HOME/scripts
-VOLUME /opt/data
-WORKDIR /opt/data
 ENTRYPOINT ["bash", "/opt/app/scripts/iostudy.sh"]

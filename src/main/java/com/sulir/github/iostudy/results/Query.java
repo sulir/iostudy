@@ -57,10 +57,16 @@ public class Query {
         writer.println();
     }
 
-    private void writeTable(ResultSet resultSet, PrintWriter writer) throws SQLException, IOException {
+    private void writeTable(ResultSet resultSet, PrintWriter writer) throws IOException {
         ICSVWriter tsvWriter = new CSVWriter(writer, '\t', NO_QUOTE_CHARACTER,
-                DEFAULT_ESCAPE_CHARACTER, DEFAULT_LINE_END);
-        tsvWriter.writeAll(resultSet, true);
+                    DEFAULT_ESCAPE_CHARACTER, DEFAULT_LINE_END);
+
+        try {
+            tsvWriter.writeAll(resultSet, true);
+        } catch (SQLException e) {
+            // OpenCSV does not handle empty result set
+        }
+
         tsvWriter.flush();
     }
 }

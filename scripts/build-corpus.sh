@@ -1,15 +1,25 @@
 #!/bin/bash
 
-# Build a corpus of Java projects from GitHub fulfilling inclusion and exclusion criteria.
+# Build a corpus of Java projects from GitHub fulfilling inclusion and exclusion criteria
 
 shopt -s nullglob
 
 projects_file=projects.txt
-gh_token_file=ghtoken.txt
-corpus_dir=$(realpath corpus)
+if [ ! -f "$projects_file" ]; then
+  echo "Please place $projects_file with a list of repositories to the mounted data directory ($DATA_DIR)."
+  exit 1
+fi
 
+gh_token_file=ghtoken.txt
+if [ -f "$gh_token_file" ]; then
+  gh_auth="Authorization: Bearer $(cat "$gh_token_file")"
+else
+  echo "GitHub API access rate will be limited as file $gh_token_file was not found in $DATA_DIR."
+  echo "To increase the limits, supply a GitHub personal access token with public-only access (no scopes)."
+fi
+
+corpus_dir=$(realpath corpus)
 mkdir -p "$corpus_dir"
-[ -f "$gh_token_file" ] && gh_auth="Authorization: Bearer $(cat "$gh_token_file")"
 
 build_project() {
   repo=$1
@@ -61,7 +71,7 @@ build_project() {
   for jarfile in ../jars/*.jar; do
     read_classes "$jarfile"
     javap -cp "$jarfile" --multi-release 17 -public -v "${CLASSES[@]}" \
-      | grep -F -m1 -e 'public static void main(java.lang.String[]);' -e 'junit.framework.TestCase' \
+      | grep -qFm1 -e 'public static void main(java.lang.String[]);' -e 'junit.framework.TestCase' \
       -e'org.junit.Test' -e 'org.junit.jupiter.api.Test' && { entry_point=1; break; }
   done
   [ $entry_point -eq 0 ] && { echo "No entry points!"; return 1; }
@@ -84,13 +94,18 @@ read_classes() {
 
 build_all() {
   while read -ru3 repo; do
+    [[ ! "$repo" ]] && continue
     echo "---------- $repo ----------"
+
     dir="$corpus_dir/${repo/\//__}"
+    [ -e "$dir" ] && { echo "$dir already exists, deleting."; rm -rf "$dir"; }
     mkdir -p "$dir/source"
-    pushd "$dir/source" > /dev/null || exit
+    pushd "$dir/source" > /dev/null || exit 1
+
     build_project "$repo"
+
     result=$?
-    popd > /dev/null || exit
+    popd > /dev/null || exit 1
 
     if [ $result -eq 0 ]; then
       rm -rf "$dir/source"
@@ -101,9 +116,8 @@ build_all() {
     if [ "$(df -m --output=avail ~ | tail -n 1)" -lt 8192 ]; then
       read -rt 30 -p $'Low disk space, erasing Maven dir ~/.m2. Press Enter to cancel\n' || rm -rf ~/.m2
     fi
-
-    return $result
   done
 }
 
-build_all 3< "$projects_file"
+build_all 3< <(cat "$projects_file"; echo)
+exit 0
