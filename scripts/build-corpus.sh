@@ -26,7 +26,7 @@ build_project() {
 
   curl -LsSIfo /dev/null "https://api.github.com/repos/$repo/contents/pom.xml" -H "$gh_auth" || return
   curl -LsS "https://api.github.com/repos/$repo/tarball" -H "$gh_auth" \
-    | tar -xz --strip-components 1 || return
+    | tar -xz --strip-components 1 --no-same-owner || return
 
   timeout -k1m 30m mvn -B -q package \
     -DskipTests -Dmaven.javadoc.skip -Dassembly.skipAssembly=true -Dmdep.skip || return
@@ -52,7 +52,7 @@ build_project() {
   done
 
   for jarfile in ../jars/*.jar ../deps/*.jar; do
-    jar -tf "$jarfile" | grep '^META-INF/versions/[0-9]\+' \
+    jar -tf "$jarfile" | grep -q '^META-INF/versions/[0-9]\+' \
       && rm -rf META-INF \
       && jar -xf "$jarfile" META-INF/versions/ \
       && for f in META-INF/versions/{9..17}; do

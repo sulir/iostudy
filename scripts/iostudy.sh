@@ -10,19 +10,40 @@ trap 'pkill -P $$; exit 1' TERM INT
 [ ! "$APP_HOME" ] && echo "Please set APP_HOME to the directory containing iostudy.jar." && exit 1
 
 iostudy_jar=$APP_HOME/iostudy.jar
+corpus_dir=$(realpath corpus)
+projects_file=projects.txt
 
 natives() {
   java -jar "$iostudy_jar" natives
 }
 
-corpus() {
+download_all() {
+  download_archive https://osf.io/download/gvmt5/
+}
+
+download_few() {
+  download_archive https://osf.io/download/3acph/
+}
+
+download_archive() {
+  url=$1
+  mkdir -p "$corpus_dir"
+  curl -L "$url" | tar --no-same-owner -xzC "$corpus_dir"
+}
+
+build_all() {
+  curl -sSL https://osf.io/download/9b8wc/ > "$projects_file"
+  build_custom
+}
+
+build_custom() {
   "$(dirname "$0")"/build-corpus.sh
 }
 
 static() {
-  [ ! -d corpus ] && echo "The corpus of projects does not exist." && return 1
+  [ ! -d "$corpus_dir" ] && echo "The corpus of projects does not exist." && return 1
 
-  for project_dir in corpus/*/; do
+  for project_dir in "$corpus_dir"/*/; do
     project=$(basename "$project_dir")
     echo "---------- ${project/__/\/} ----------"
     timeout -k1m 1h java -mx14g -jar "$iostudy_jar" static "$project"
@@ -44,7 +65,7 @@ dynamic() {
 
   for benchmark in $benchmarks; do
     echo "---------- $benchmark ----------"
-    java -jar "$iostudy_jar" dynamic "$benchmark" $port . &
+    java -jar "$iostudy_jar" dynamic "$benchmark" $port &
     timeout -k1m 2h java "$debugger" -jar "$DACAPO_JAR" -s small "$benchmark"
     [ $? -ge 124 ] && echo "Benchmark $benchmark timed out!"
   done
@@ -56,8 +77,8 @@ results() {
   java -jar "$iostudy_jar" results
 }
 
-all_phases=(natives corpus static results)
-default_phases=(corpus static results)
+all_phases=(natives download-all download-few build-all build-custom static results)
+default_phases=(download-all static results)
 
 if [ $# -eq 0 ]; then
   phases=("${default_phases[@]}")
@@ -71,14 +92,14 @@ for phase in "${phases[@]}"; do
 
   old_path=$PATH
   PATH=$(echo "$PATH" | tr ':' '\n' | grep -vFx "$JDK_HOME" | tr '\n' ':')
-  if [ "$phase" = corpus ]; then
+  if [[ "$phase" == build-* ]]; then
     PATH="$JDK_HOME/bin:$PATH"
   else
     PATH="$JRE_HOME/bin:$PATH"
   fi
   export PATH
 
-  $phase || { echo "Phase \"$phase\" failed, stopping."; exit 1; }
+  ${phase/-/_} || { echo "Phase \"$phase\" failed, stopping."; exit 1; }
   export PATH=$old_path
 done
 
