@@ -1,4 +1,4 @@
-# A study of IO methods in Java
+# A study of I/O methods in Java
 
 This repository contains the source code of the programs for our paper "Outside the Sandbox: A Study of Input/Output Methods in Java" (under review).
 
