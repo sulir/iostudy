@@ -6,27 +6,22 @@ A complete dataset with the results is available at [OSF.io](https://doi.org/10.
 
 ## Reproducibility
 
-The Docker image can be built with the following command:
+Use with the following command to reproduce the complete analysis:
 ```shell
-docker build -t iostudy .
+docker run -itv ~/study:/opt/data sulir/iostudy
 ```
-
-Next, use with the following command to reproduce the complete analysis:
-```shell
-docker run -itv ~/study:/opt/data iostudy
-```
-where `~/study` is a directory on the host that will be shared with the Docker container. The results of the analysis will be then written to `~/study/results`.
+where `~/study` is a directory on the host that will be shared with the Docker container. The results will be then written to `~/study/results`.
 
 The whole process can last a few days. For demonstration purposes, it is possible to analyze a small corpus of 5 projects only:
 ```shell
-docker run -itv ~/study:/opt/data iostudy download-few static results
+docker run -itv ~/study:/opt/data sulir/iostudy download-few static results
 ```
 
 ## Arguments
 
 The study contains multiple phases. A list of phases to run can be supplied as arguments to the Docker image's entry point, e.g.,
 ```shell
-docker run -itv ~/study:/opt/data iostudy build-all static
+docker run -itv ~/study:/opt/data sulir/iostudy build-all static
 ```
 will build all projects from source code and then perform static analysis on this corpus.
 
@@ -59,3 +54,16 @@ ghtoken.txt
 natives.tsv
 projects.txt
 results.db3
+```
+
+## Building from Source
+
+The Docker image can be built using the following command in the project's root directory:
+```shell
+docker build -t sulir/iostudy .
+```
+
+To build only the main Java application, e.g., for debugging, run:
+```
+mvn package
+```
