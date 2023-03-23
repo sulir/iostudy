@@ -26,6 +26,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: sulir/iostudy
+          tags: |
+            type=match,pattern=^v(\d.*),group=1
+          labels: org.opencontainers.image.licenses=
 
       - name: Build and push
         uses: docker/build-push-action@v4
@@ -33,3 +36,4 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
