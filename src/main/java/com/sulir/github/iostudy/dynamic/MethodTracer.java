@@ -7,6 +7,7 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.VMDeathRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,10 @@ public class MethodTracer {
         setupRequest(manager.createMethodEntryRequest());
         setupRequest(manager.createMethodExitRequest());
         setupRequest(manager.createThreadDeathRequest());
+
+        VMDeathRequest vmDeathRequest = manager.createVMDeathRequest();
+        vmDeathRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+        vmDeathRequest.enable();
     }
 
     private void setupRequest(EventRequest request) {
@@ -53,6 +58,8 @@ public class MethodTracer {
                         handleMethodExit(methodExitEvent);
                     else if (event instanceof ThreadDeathEvent threadDeathEvent)
                         handleThreadDeath(threadDeathEvent);
+                    else if (event instanceof VMDeathEvent)
+                        vm.resume();
                 }
             } catch (VMDisconnectedException e) {
                 return;
