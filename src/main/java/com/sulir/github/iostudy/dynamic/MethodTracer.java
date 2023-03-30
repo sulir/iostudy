@@ -4,17 +4,17 @@ import com.sulir.github.iostudy.methods.DynamicCaller;
 import com.sulir.github.iostudy.methods.NativeMethod;
 import com.sulir.github.iostudy.methods.NativeMethodList;
 import com.sun.jdi.*;
-import com.sun.jdi.event.*;
+import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventQueue;
+import com.sun.jdi.event.MethodEntryEvent;
+import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.MethodEntryRequest;
 import com.sun.jdi.request.VMDeathRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MethodTracer {
     private final VirtualMachine vm;
-    private final Map<Long, MethodStack> threadStacks = new HashMap<>();
     private final NativeMethodList nativeMethods;
     private final Benchmark benchmark;
 
@@ -33,18 +33,13 @@ public class MethodTracer {
     private void setupEventRequests() {
         EventRequestManager manager = vm.eventRequestManager();
 
-        setupRequest(manager.createMethodEntryRequest());
-        setupRequest(manager.createMethodExitRequest());
-        setupRequest(manager.createThreadDeathRequest());
+        MethodEntryRequest methodEntryRequest = manager.createMethodEntryRequest();
+        methodEntryRequest.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        methodEntryRequest.enable();
 
         VMDeathRequest vmDeathRequest = manager.createVMDeathRequest();
         vmDeathRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
         vmDeathRequest.enable();
-    }
-
-    private void setupRequest(EventRequest request) {
-        request.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-        request.enable();
     }
 
     private void handleEvents() {
@@ -54,10 +49,6 @@ public class MethodTracer {
                 for (Event event : queue.remove()) {
                     if (event instanceof MethodEntryEvent methodEntryEvent)
                         handleMethodEntry(methodEntryEvent);
-                    else if (event instanceof MethodExitEvent methodExitEvent)
-                        handleMethodExit(methodExitEvent);
-                    else if (event instanceof ThreadDeathEvent threadDeathEvent)
-                        handleThreadDeath(threadDeathEvent);
                     else if (event instanceof VMDeathEvent)
                         vm.resume();
                 }
@@ -70,23 +61,13 @@ public class MethodTracer {
     }
 
     private void handleMethodEntry(MethodEntryEvent event) {
-        long threadId = event.thread().uniqueID();
-        threadStacks.putIfAbsent(threadId, new MethodStack());
-        threadStacks.get(threadId).push(event.method());
-
-        if (event.method().isNative())
+        if (event.method().isNative()) {
             recordNativeMethod(event);
-        else
+            event.thread().resume();
+        } else {
+            event.thread().resume();
             recordNonNativeMethod(event);
-    }
-
-    private void handleMethodExit(MethodExitEvent event) {
-        long threadId = event.thread().uniqueID();
-        threadStacks.get(threadId).pop();
-    }
-
-    private void handleThreadDeath(ThreadDeathEvent event) {
-        threadStacks.remove(event.thread().uniqueID());
+        }
     }
 
     private void recordNativeMethod(MethodEntryEvent event) {
@@ -94,10 +75,12 @@ public class MethodTracer {
             throw new RuntimeException("Non-JRE native method: " + event.method());
 
         NativeMethod nativeMethod = nativeMethods.getNative(new DynamicCaller(event.method()).getUniqueKey());
-        MethodStack stack = threadStacks.get(event.thread().uniqueID());
-
-        for (Method method : stack.toArray(new Method[0]))
-            benchmark.registerCalledNative(method, nativeMethod);
+        try {
+            for (StackFrame frame : event.thread().frames())
+                benchmark.registerCalledNative(frame.location().method(), nativeMethod);
+        } catch (IncompatibleThreadStateException e) {
+            e.printStackTrace();
+        }
     }
 
     private void recordNonNativeMethod(MethodEntryEvent event) {
