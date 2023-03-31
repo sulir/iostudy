@@ -60,8 +60,20 @@ CREATE TABLE IF NOT EXISTS dyn_callers (
     bytes INTEGER NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS dyn_callers_benchmark_id ON dyn_callers (benchmark_id);
+CREATE INDEX IF NOT EXISTS dyn_callers_bytes ON dyn_callers (bytes);
+
 CREATE TABLE IF NOT EXISTS dyn_callers_natives (
     dyn_caller_id INTEGER NOT NULL REFERENCES dyn_callers(dyn_caller_id) ON DELETE CASCADE,
     native_id INTEGER NOT NULL REFERENCES natives(native_id),
     PRIMARY KEY (dyn_caller_id, native_id)
 );
+
+CREATE INDEX IF NOT EXISTS dyn_cn_dyn_caller_id ON dyn_callers_natives (dyn_caller_id);
+CREATE INDEX IF NOT EXISTS dyn_cn_native_id ON dyn_callers_natives (native_id);
+
+CREATE VIEW IF NOT EXISTS dyn_io_calls AS
+    SELECT * FROM dyn_callers
+    JOIN dyn_callers_natives USING (dyn_caller_id)
+    JOIN natives USING (native_id)
+    WHERE category IN ('desktop', 'time', 'files', 'network', 'os');
