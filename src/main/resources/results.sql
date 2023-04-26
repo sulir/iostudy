@@ -145,6 +145,16 @@ FULL JOIN (
 ON n.units = t.units
 ORDER BY size;
 
+-- What portion of methods at least 5 units large call IO natives?
+
+SELECT
+    100.0 * COUNT(DISTINCT(caller_id)) / (
+        SELECT COUNT(*) FROM callers
+        WHERE units >= 5
+    ) AS io_percent
+FROM io_calls
+WHERE units >= 5;
+
 -- What is the portion of test/non-test methods, and what portion of test/non-test methods call IO natives?
 
 SELECT
@@ -168,7 +178,7 @@ JOIN (
 ON n.test = a.test
 ORDER BY test DESC;
 
--- How many benchmarks were successfully dynamically analyzed?
+-- How many benchmarks were dynamically analyzed?
 
 SELECT
     COUNT(*) as benchmark_count
@@ -288,3 +298,13 @@ FULL JOIN (
 ) AS t
 ON n.bytes = t.bytes
 ORDER BY size;
+
+-- What portion of methods at least 10 bytes large call IO natives at runtime?
+
+SELECT
+    100.0 * COUNT(DISTINCT(dyn_caller_id)) / (
+        SELECT COUNT(*) FROM dyn_callers
+        WHERE bytes >= 10
+    ) AS io_percent
+FROM dyn_io_calls
+WHERE bytes >= 10;
