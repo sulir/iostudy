@@ -80,7 +80,7 @@ results() {
 }
 
 all_phases=(natives download-all download-few build-all build-custom static dynamic results)
-default_phases=(download-all static results)
+default_phases=(download-all static dynamic results)
 
 if [ $# -eq 0 ]; then
   phases=("${default_phases[@]}")
