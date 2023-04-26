@@ -1,8 +1,8 @@
 package com.sulir.github.iostudy.code;
 
 import com.sulir.github.iostudy.methods.NativeMethod;
-import com.sulir.github.iostudy.methods.StaticCaller;
 import com.sulir.github.iostudy.methods.NativeMethodList;
+import com.sulir.github.iostudy.methods.StaticCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Kind;
@@ -14,6 +14,7 @@ import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.callgraph.Filter;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
+import soot.util.dot.DotGraph;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -43,6 +44,8 @@ public class ProjectCallGraph {
             printCallTrees();
         if (System.getenv("IOSTUDY_REACHABLE") != null)
             printReachableMethods();
+        if (System.getenv("IOSTUDY_GRAPH") != null)
+            plotCallGraph();
     }
 
     private void findEntryPoints() {
@@ -129,5 +132,17 @@ public class ProjectCallGraph {
             for (SootMethod target : sorted)
                 System.out.println("  " + target);
         }
+    }
+
+    public void plotCallGraph() {
+        DotGraph dot = new DotGraph("callgraph");
+
+        for (Edge edge : graph) {
+            dot.drawNode(edge.src().toString());
+            dot.drawNode(edge.tgt().toString());
+            dot.drawEdge(edge.src().toString(), edge.tgt().toString());
+        }
+
+        dot.plot("callgraph.dot");
     }
 }
