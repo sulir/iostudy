@@ -18,7 +18,7 @@ natives() {
 }
 
 download_all() {
-  download_archive https://osf.io/download/gvmt5/
+  download_archive https://osf.io/download/9dpkc/
 }
 
 download_few() {
@@ -32,7 +32,7 @@ download_archive() {
 }
 
 build_all() {
-  curl -sSL https://osf.io/download/9b8wc/ > "$projects_file"
+  curl -sSL https://osf.io/download/4zr6u/ > "$projects_file"
   build_custom
 }
 
