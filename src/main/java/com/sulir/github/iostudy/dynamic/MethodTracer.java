@@ -7,8 +7,11 @@ import com.sun.jdi.*;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.MethodEntryEvent;
+import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.MethodEntryRequest;
+import com.sun.jdi.request.VMDeathRequest;
 
 public class MethodTracer {
     private final VirtualMachine vm;
@@ -28,9 +31,15 @@ public class MethodTracer {
     }
 
     private void setupEventRequests() {
-        MethodEntryRequest request = vm.eventRequestManager().createMethodEntryRequest();
-        request.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-        request.enable();
+        EventRequestManager manager = vm.eventRequestManager();
+
+        MethodEntryRequest methodEntryRequest = manager.createMethodEntryRequest();
+        methodEntryRequest.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        methodEntryRequest.enable();
+
+        VMDeathRequest vmDeathRequest = manager.createVMDeathRequest();
+        vmDeathRequest.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+        vmDeathRequest.enable();
     }
 
     private void handleEvents() {
@@ -38,8 +47,10 @@ public class MethodTracer {
         while (true) {
             try {
                 for (Event event : queue.remove()) {
-                    if (event instanceof MethodEntryEvent)
-                        handleMethodEntry((MethodEntryEvent) event);
+                    if (event instanceof MethodEntryEvent methodEntryEvent)
+                        handleMethodEntry(methodEntryEvent);
+                    else if (event instanceof VMDeathEvent)
+                        vm.resume();
                 }
             } catch (VMDisconnectedException e) {
                 return;

@@ -57,7 +57,7 @@ dynamic() {
   [ ! "$DACAPO_JAR" ] && echo "Please set DACAPO_JAR to the DaCapo benchmark path." && return 1
 
   benchmarks=$(java -jar "$DACAPO_JAR" -l 2>&1 | tail -1)
-  exclude=(cassandra eclipse)
+  exclude=(batik cassandra eclipse jme tradebeans tradesoap)
   for e in "${exclude[@]}"; do benchmarks=${benchmarks/$e}; done
 
   port=8000
@@ -66,8 +66,10 @@ dynamic() {
   for benchmark in $benchmarks; do
     echo "---------- $benchmark ----------"
     java -jar "$iostudy_jar" dynamic "$benchmark" $port &
-    timeout -k1m 2h java "$debugger" -jar "$DACAPO_JAR" -s small "$benchmark"
-    [ $? -ge 124 ] && echo "Benchmark $benchmark timed out!"
+    timeout -k1m 48h java $debugger -jar "$DACAPO_JAR" -s small "$benchmark"
+    [ $? -eq 124 ] && echo "Benchmark $benchmark timed out!"
+    wait
+    echo
   done
 
   return 0
@@ -77,7 +79,7 @@ results() {
   java -jar "$iostudy_jar" results
 }
 
-all_phases=(natives download-all download-few build-all build-custom static results)
+all_phases=(natives download-all download-few build-all build-custom static dynamic results)
 default_phases=(download-all static results)
 
 if [ $# -eq 0 ]; then
